@@ -1,4 +1,4 @@
-Hi there! my name is Dan, I am a junior DevOps engineer with experience in the following tools and technologies:
+Hi there! my name is Dan, I am a junior DevOps engineer with knowledge in the following tools and technologies:
 
 - Linux
 - Git
