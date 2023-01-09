@@ -9,8 +9,9 @@ Hi there! my name is Dan, I am a junior DevOps engineer with knowledge in the fo
 - Kubernetes
 - Python
 - Terraform
+- Ansible
 
-Currently learning Ansible and prometheus.
+Currently learning prometheus.
 
 I am passionate about automation and continuous delivery, and I enjoy solving problems and learning new technologies (especially GPT3 and its potential uses).
 
