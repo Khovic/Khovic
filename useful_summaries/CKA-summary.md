@@ -3,7 +3,7 @@
         a cluster with multiple control plan nodes (Master)
 
     Stacked Etcd: 
-        When each worker node is also hosting its own Etcd
+        When each master node is also hosting its own Etcd
     
     External Etcd:
         When theres a seperate server hosting the Etcd
