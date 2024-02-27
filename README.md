@@ -8,6 +8,7 @@ Hi there! my name is Dan, I am a DevOps engineer with knowledge in the following
 - AWS
 - Kubernetes
 - Python
+- Bash
 - Terraform
 - Ansible
 - Openshift
