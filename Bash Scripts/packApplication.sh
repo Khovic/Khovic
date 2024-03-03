@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Required information
+image_repo='artifactory.company.co:6443'
+git_code_repo='https://gitlab.company.co/project/source-code-folder'
+git_helms_repo='git@gitlab.company.co:project/helm-repo.git'
+helms_dir='app-helm'
+
+# # List of services to update (as folder names from git_helms_repo/)
+services_list=("app-service-1" "app-service-2" "app-service-3")
+
 # This function removes all helms that are not in services_list list
 reduce_helms() {
     local helm_dir=$1
@@ -154,13 +163,6 @@ create_archive() {
 }
 
 main_function() {
-    # Required information
-    image_repo='<-default-image-repository-here->'
-    git_code_repo='<-default-source-code-git-repository-here->'
-    git_helms_repo='<-default-helm-charts-git-repository-here->'
-
-    # # List of services to update (as folder names from git-helms-repository/)
-    services_list=("default-service-1" "default-service-2" "default-service-3")
 
     # Check if the script is run as root
     if [[ $(id -u) -ne 0 ]]; then
@@ -199,7 +201,7 @@ main_function() {
     ##### GIT SSH URL INPUT START #####
     clear
     echo "Please make sure you have configured SSH Access to git on this computer"
-    read -p "Please helms ssh url (leave empty for default: $git_helms_repo): " user_input
+    read -p "Please enter helms ssh url (leave empty for default: $git_helms_repo): " user_input
     if [[ -n "$user_input" ]]; then
         # -n tests if the string is non-empty
         git_helms_repo="$user_input"
@@ -213,17 +215,17 @@ main_function() {
     ##### GIT SSH URL INPUT END #####
     
 
-    ##### HELMS URL INPUT START #####
-    clear
-    read -p "Please helms ssh url (leave empty for default: $git_helms_repo): " user_input
-    if [[ -n "$user_input" ]]; then
-        # -n tests if the string is non-empty
-        git_helms_repo="$user_input"
-        echo "Input registered: $git_helms_repo"
-    else
-        echo "No input provided. $git_helms_repo configured"
-    fi
-    ##### HELMS URL INPUT END #####
+    # ##### HELMS URL INPUT START #####
+    # clear
+    # read -p "Please helms ssh url (leave empty for default: $git_helms_repo): " user_input
+    # if [[ -n "$user_input" ]]; then
+    #     # -n tests if the string is non-empty
+    #     git_helms_repo="$user_input"
+    #     echo "Input registered: $git_helms_repo"
+    # else
+    #     echo "No input provided. $git_helms_repo configured"
+    # fi
+    # ##### HELMS URL INPUT END #####
 
     ##### SERVICES LIST INPUT START #####
     echo "default list:"
@@ -266,7 +268,7 @@ main_function() {
     prepare_for_archiving
 
     # Save all to a tar.gz archive
-    create_archive "$tar_name" "docker_images" "helms-folder" "source_code"
+    create_archive "$tar_name" "docker_images" "$helms_dir" "source_code"
 
     # Clear Files after packing
     
