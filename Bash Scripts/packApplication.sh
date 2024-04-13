@@ -264,6 +264,7 @@ main_function() {
     tar_name=${git_code_repo##*/}
     ##### GIT SSH URL INPUT END #####
 
+<<<<<<< HEAD
     ##### HELM CODE GIT BRANCH INPUT START #####
     clear
     read -p "Please enter helm charts branch (leave empty for default: $git_helms_branch): " user_input
@@ -275,6 +276,19 @@ main_function() {
         echo "No input provided. $git_helms_branch configured"
     fi
     ##### HELMS GIT URL INPUT END #####
+=======
+    # ##### HELMS URL INPUT START #####
+    # clear
+    # read -p "Please helms ssh url (leave empty for default: $git_helms_repo): " user_input
+    # if [[ -n "$user_input" ]]; then
+    #     # -n tests if the string is non-empty
+    #     git_helms_repo="$user_input"
+    #     echo "Input registered: $git_helms_repo"
+    # else
+    #     echo "No input provided. $git_helms_repo configured"
+    # fi
+    # ##### HELMS URL INPUT END #####
+>>>>>>> b43713351c6ab0abc8ba193344c99ca342d55706
 
     ##### SERVICES LIST INPUT START #####
     echo "default list:"
