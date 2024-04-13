@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Required information
+image_repo='artifactory.company.co.il:6001'
+git_code_repo='https://gitlab.company.co.il/tsgs/mission'
+git_code_branch='main'
+git_helms_repo='git@gitlab.company.co.il:tsgs/mission-helm.git'
+git_helms_branch='main'
+helms_dir='mission-helm'
+
+# # List of services to update (as folder names from git-helms-repository/)
+services_list=("common-data-layer-transformation" "common-layers-manager" "common-notification-service" "mission-detections-service" "mission-gcs-ui" "mission-locations-service" "mission-mini-gc" "mission-missions-gw" "mission-missions-manager" "mission-notify-service" "mission-payload-service" "mission-resources-service" "mission-zones-gw" "mission-zones-manager" "mission-sse-service")
+
 # This function removes all helms that are not in services_list list
 reduce_helms() {
     local helm_dir=$1
@@ -15,7 +26,7 @@ reduce_helms() {
         if [[ ! " ${services_list[@]} " =~ " ${folder_name} " ]]; then
             # If not in services_list list, delete it
             echo "Deleting $folder..."
-            rm -rf "$folder"
+            rm -r "$folder"
         fi
     done
 
@@ -58,15 +69,35 @@ extract_app_images() {
     done
 }
 
+extract_app_images_dev() {
+    local helm_dir=$1
+    shift # Remove the first argument and shift the others to the left
+    local services=("$@") # The rest of the arguments are service names
+    local image_list=() # The list will contain the URL of all images
+
+    for service_name in "${services[@]}"; do
+        local deployment_ifile="${helm_dir}/${service_name}/templates/deployment.yaml"
+        local image_name=$(grep 'image:' "$deployment_file" | awk '{print $2}' | tr -d '"')
+
+        image_list+=$image_name
+        echo $image_name
+    done
+}
+
 # Converts docker image url to a file.tar name for saving
 convert_image_to_filename() {
+    
     local input_string=$1
 
-    # Extract the part after the last slash
-    local last_part=${input_string##*/}
+    if [[ "$image_repo" == "artifactory.company.co.il:6001" ]]; then
+        # Extract the part after the last slash
+        local last_part=${input_string##*/}
+        # Replace colon ':' with dot '.'
+        local formatted_string=${last_part/:/.}
 
-    # Replace colon ':' with dot '.'
-    local formatted_string=${last_part/:/.}
+    elif [[ "$image_repo" == "harbor-infra-saas.apps.rosa-rf-cluster.61sb.p1.openshiftapps.com" ]]; then
+        local formatted_string=$(echo "$input_string" | awk -F'/' '{print $4":"$(NF)}' | cut -d':' -f1,3)
+    fi
 
     # Append '.tar' to the string
     echo "${formatted_string}.tar"
@@ -113,16 +144,27 @@ save_docker_images() {
     done
 }
 
+save_docker_images_dev () {
+    mkdir "docker_images"
+    images_repo=$1
+}
+
 # Pull Source code from git
 git_save_source_code() {
     local code_repo=$1
-    shift # Remove the first argument
-    local services_list=("$@")
+    local code_branch=$2
     local output_url=$(convert_url "$code_repo")
+    echo "$output_url"
 
     mkdir -p "source_code"
     for service in "${services_list[@]}"; do
-        git clone --recurse-submodules $code_repo/$service.git source_code/$service
+        git clone --recurse-submodules $output_url$service.git source_code/$service
+        pwd
+        cd source_code/$service
+        git checkout $code_branch
+        git pull
+        git branch
+        cd ../..
     done
 }
 
@@ -130,6 +172,10 @@ git_save_source_code() {
 git_save_helms() {
     local helm_repo=$1
     git clone $helm_repo
+    cd $helms_dir
+    git checkout $git_helms_branch
+    git pull
+    cd ..
 }
 
 prepare_for_archiving() {
@@ -154,13 +200,6 @@ create_archive() {
 }
 
 main_function() {
-    # Required information
-    image_repo='<-default-image-repository-here->'
-    git_code_repo='<-default-source-code-git-repository-here->'
-    git_helms_repo='<-default-helm-charts-git-repository-here->'
-
-    # # List of services to update (as folder names from git-helms-repository/)
-    services_list=("default-service-1" "default-service-2" "default-service-3")
 
     # Check if the script is run as root
     if [[ $(id -u) -ne 0 ]]; then
@@ -195,11 +234,24 @@ main_function() {
     fi
     ##### SOURCE CODE GIT URL INPUT END #####
 
+      
+    ##### SOURCE CODE GIT BRANCH INPUT START #####
+    clear
+    read -p "Please enter project source code branch (leave empty for default: $git_code_branch): " user_input
+    if [[ -n "$user_input" ]]; then
+        # -n tests if the string is non-empty
+        git_code_branch="$user_input"
+        echo "Input registered: $git_code_branch"
+    else
+        echo "No input provided. $git_code_branch configured"
+    fi
+    ##### SOURCE CODE GIT URL INPUT END #####
+    
 
     ##### GIT SSH URL INPUT START #####
     clear
     echo "Please make sure you have configured SSH Access to git on this computer"
-    read -p "Please helms ssh url (leave empty for default: $git_helms_repo): " user_input
+    read -p "Please enter helms ssh url (leave empty for default: $git_helms_repo): " user_input
     if [[ -n "$user_input" ]]; then
         # -n tests if the string is non-empty
         git_helms_repo="$user_input"
@@ -211,19 +263,18 @@ main_function() {
     helm_dir=${helm_dir##*/} # takes the string after the last "/"
     tar_name=${git_code_repo##*/}
     ##### GIT SSH URL INPUT END #####
-    
 
-    ##### HELMS URL INPUT START #####
+    ##### HELM CODE GIT BRANCH INPUT START #####
     clear
-    read -p "Please helms ssh url (leave empty for default: $git_helms_repo): " user_input
+    read -p "Please enter helm charts branch (leave empty for default: $git_helms_branch): " user_input
     if [[ -n "$user_input" ]]; then
         # -n tests if the string is non-empty
-        git_helms_repo="$user_input"
-        echo "Input registered: $git_helms_repo"
+        git_helms_branch="$user_input"
+        echo "Input registered: $git_helms_branch"
     else
-        echo "No input provided. $git_helms_repo configured"
+        echo "No input provided. $git_helms_branch configured"
     fi
-    ##### HELMS URL INPUT END #####
+    ##### HELMS GIT URL INPUT END #####
 
     ##### SERVICES LIST INPUT START #####
     echo "default list:"
@@ -251,13 +302,19 @@ main_function() {
     git_save_helms "$git_helms_repo"
 
     # Save Source_code
-    git_save_source_code "$git_code_repo" "${services_list[@]}"
+    git_save_source_code "$git_code_repo" "$git_code_branch" #"${services_list[@]}"
 
     # Call the function with directory and services_list as keep list
     reduce_helms "$helm_dir" "${services_list[@]}"
 
     # Creates an 'image_list' array from extract_app_images
-    readarray -t image_list < <(extract_app_images "$helm_dir" "${services_list[@]}")
+    if [[ "$git_helms_branch" != "jenkins-dev-mission-dev" ]]; then
+        readarray -t image_list < <(extract_app_images "$helm_dir" "${services_list[@]}")
+    elif [[ "$git_helms_branch" == "jenkins-dev-mission-dev" ]]; then
+        readarray -t image_list < <(extract_app_images_dev "$helm_dir" "${services_list[@]}")
+    fi
+    echo "listing images"
+    echo $image_list
 
     # Pass image_list to the function for pulling an saving
     save_docker_images "$image_repo" "${image_list[@]}"
@@ -266,7 +323,7 @@ main_function() {
     prepare_for_archiving
 
     # Save all to a tar.gz archive
-    create_archive "$tar_name" "docker_images" "helms-folder" "source_code"
+    create_archive "$tar_name" "docker_images" "$helms_dir" "source_code"
 
     # Clear Files after packing
     
