@@ -82,7 +82,7 @@ S3 is  universal namespace
 
 <!-- S3 Object Lock and Glacier Vault lock: -->
     S3 Object Lock: Used to store objects using a write once, ready many (WORM) model.
-    S3 Object can be applied on individual objects or applied across the bucket.
+       can be applied on individual objects or applied across the bucket.
     S3 Object Lock comes in two modes:
         Compliance Mode: A protected object version can't be overwritten or deleted by any user, including root.
         Governance Mode: Users can't overwrite or delete an object unless they have special permissions.
@@ -188,3 +188,106 @@ AWS datacenter deployed on-premise, Useful for Hybrid Cloud.
         Provides AWS Compute, Storage, database and other services locally.
     Outposts Servers: Individual servers in 1U or 2U form factor.
         Useful for small space requirements. provides local compute and networking.
+
+
+# EBS and EFS
+!!!EBS:
+<!-- IOPS VS Throughput  -->
+    IOPS:
+        - Measures R/W Operations per second.
+        - Important metric for low latency, high transaction count workloads.
+        - IOPS SSDs are io1 (legacy) and io2 (same price as io1 but better)
+    Throughput:
+        - Measures number of bits read or written per seconds (MB/s)
+        - Important metric for large datasets, large I/O sizes, complex queries.
+        - HDD (st1)
+
+    SSD Volumes:
+        - gp2/gp3: general purpose, suitable for boot disks and g eneral applications. upto 16,000 IOPS
+        - io1/io2: suitable for OLTP and latency-sensitive applications upto 64,000 IOPS. 99.9/99.999% durability.
+
+    HDD Volumes:
+        - st1: Throughput optimized HDD, suitable for big data, data warehouses and ETL, upto 500MB/s.
+        - sc1: cold storage, for infrequently accessed data, lowest cost.
+        * both provied 99.9% durability, neither can be used as boot disks.
+    
+<!-- Volumes and Snapshots -->
+    Volumes exist on EBS and will always be in the same AZ as the EC2 instance.
+    Snapshots exist on S3, and are incremental in nature.
+    For consistent snapshots, stop the instance and detach the volume.
+    Snapshots can be shared between AWS accounts as well as between regions, but must be copied to the target region first.
+    EBS Volumes can be resized on the fly, as well as changing the volume types.
+
+<!-- EBS Encryption -->
+    Encrypted Volumes:
+    - Data at rest is encrypted inside the volume.
+    - All data in flight moving between the instance and the volume is encrypted.
+    - All snapshots are encrypted.
+    - All volumes created from the snapshot are encrypted.
+    - Encryption and decryption are handled transparently (no user intervention is required).
+    - Encryption has minimal impact on latency.
+
+    Encrypt an existing unencrypted Volume:
+    1. Create a snapshot of the unencrypted root device volume
+    2. Create a copy of the snapshot and select the encrypt option
+    3. Create an AMI from the encrypted snapshot
+    4. Use the AMI to launch new encrypted instances
+
+<!-- EBS Hibernation -->
+    - Preserves the RAM to the EBS.
+    - Allow faster boot times.
+    - Instance RAM must be less than 150GB.
+    - Supported in GP, Compute, Memory and Storage Optimized groups.
+    - Availabel for windows, Amazon Linux 2 AMI and Ubuntu.
+    - Instances can't be hibernated for more than 60 days.
+
+!!! EFS:
+<!-- EFS Overview -->
+    - Basically managed NFSv4 Service
+    - Only pay for the storage you use (No pre-provisioning)
+    - Can scale up to petabytes
+    - Can handle thousands of concurrent connections
+    - Data is stored across multiple AZs within a region
+    - Read-after-write consistency
+
+    Giveaways: Highly scalabe shared storage using nfs.
+
+!!! FSx:
+<!-- FSx for Windows -->
+    - A managed windows server that runs Windows Server Message Block (SMB) based file services
+    - Designed for Windows
+    - Supports AD users, acls, groups and security polices, along with Distributed File System (DFS) namespaces and replication
+    - Used as a centralized storage for windows based applicatiosn, such as SharePoint, Microsoft SQL Server, IIS Web Server etc..
+
+<!-- FSx for Lustre -->
+    - Used for high-speed, high-capacity distributed storage useful for HPC, AI and ML.
+    - Can store files on S3
+    - Can process massive datasets at 100's of GBs\s of throughput, millions of IOPS and sub-millisecond latencies.
+
+<!-- AMI's -->
+Can be based on:
+    - Region
+    - OS
+    - Architecture (32/64bit)
+    - Launch permissions
+    - Storage for the root device (root device volume)
+
+All AMIs are categorized as either backed by:
+    1. EBS: The root device is launched from the AMI is an EBS volume created from an EBS snapshot
+    2. Insttance Store: The root device for an instance launched from the AMI is an instance store volume created from a template stored in S3.
+
+Instance Stores:
+    - sometimes caleld ephemeral storage.
+    - Instance store volumes cannot be stopped, if the host fails the data is lost.
+    - Can be reboot without losing data
+    * basically RAM filesystem
+EBS-backed instacnes
+    - EBS-backed instances can be stopped 
+    - Can be reboot without losing data
+    - Can be configured to keep root device volume when terminated
+
+<!-- AWS Backup -->
+    Consolidation: Can backup AWS services suchg as EC2,EBS,EFS,FSX (Windows\Lustre) and AWS Storage Gateway.
+    Organizations: Can be used with AWS Organizations to back up AWS services across multiple AWS accoutns.
+    Benefits: Allows centralized control and automation of back ups, definition of lifecycle policies for data.
+              Improves compliance as backup policies can be enforced, ensuring backups are encrypted and audit them once complete.
