@@ -291,3 +291,155 @@ EBS-backed instacnes
     Organizations: Can be used with AWS Organizations to back up AWS services across multiple AWS accoutns.
     Benefits: Allows centralized control and automation of back ups, definition of lifecycle policies for data.
               Improves compliance as backup policies can be enforced, ensuring backups are encrypted and audit them once complete.
+
+
+# DATABASES COMPARSION
+<!-- Relational databases vs NoSQL (MongoDB) -->
+<!-- Database -->
+MongoDB: Here, a database is a container for collections and can host multiple collections.
+
+Relational Database: Similarly, a database is a container for tables. It can contain one or more tables.
+<!-- Collections vs. Tables -->
+MongoDB Collections: Collections in MongoDB are analogous to tables in relational databases. However, collections do not enforce a strict schema.
+
+Tables: In relational databases, tables are where the data is stored. Unlike MongoDB, each table in a relational database follows a strict schema, defining the columns and types of data that can be stored in each row.
+<!-- Document vs. Row/Record -->
+    MongoDB Document: In MongoDB, data is stored in documents, which are BSON (Binary JSON) formatted. A document can contain nested documents and arrays.
+
+    Row/Record: In relational databases, data is stored in rows within a table. Each row corresponds to a single record and must conform to the schema defined by the table.
+
+<!-- Field vs. Column -->
+    MongoDB Field: Fields are the individual data points within a document.
+
+    Column: In relational databases, columns are the equivalent of fields in MongoDB. Each column in a table is designed to hold a specific type of data, like text, date, number, etc.
+
+<!-- Primary Key -->
+    MongoDB: MongoDB uses an _id field as a primary key to uniquely identify documents within a collection.
+
+    Relational Database: Relational databases also use a primary key concept to uniquely identify each row within a table. A primary key can consist of one or more columns.
+
+<!-- Foreign Key -->
+    MongoDB: MongoDB does not have built-in support for foreign keys. Relationships can be modeled using embedded documents or references, but these are not enforced by the database.
+
+    Relational Database: A foreign key is a column or a group of columns in a table that uniquely identifies a row in another table. Foreign keys are fundamental in establishing relationships between tables.
+
+<!-- Relationship -->
+    MongoDB: Relationships between collections are typically modeled using references (manual linking between documents) or embedded documents.
+
+        Relational Database: Relationships are a core concept. There are primarily three types:
+    One-to-One: A row in Table A is related to one, and only one, row in Table B.
+    One-to-Many: A row in Table A can be related to many rows in Table B.
+    Many-to-Many: Many rows in Table A can relate to many rows in Table B. This is usually implemented using a join table.
+<!-- Joins -->
+    MongoDB: To perform operations that involve multiple collections, you typically use the $lookup aggregation pipeline stage to perform a join-like operation.
+
+    Relational Database: Joins are used to combine rows from two or more tables based on a related column between them. There are various types of joins, like INNER JOIN, LEFT JOIN, RIGHT JOIN, and FULL JOIN, each serving different use cases.
+<!-- Indexes -->
+    Both MongoDB and Relational Databases: Indexes are used to speed up the search queries by allowing the database to find data without scanning every document or row in the database. Both MongoDB and relational databases support indexes, though the implementation details and capabilities may vary.
+
+
+# AWS DATABASES
+<!-- OLTP VS OLAP -->
+    OLTP: Manages and processes high volumes of transactions in real-time. Optimized for operational tasks requiring quick data manipulation.
+
+    OLAP: Designed for complex data analysis and queries, supporting decision-making. Optimized for analyzing and aggregating large datasets.
+
+<!-- RDS -->
+    Transactional database (OLTP), not suitable for OLAP workloads.
+    Database Types: SQL Server, Oracle, MySQL, PostgreSQL, MariaDB and Amazon Aurora.
+
+    MULTI-AZ RDS: AWS creates an exact (standby) copy of the primary database in another AZ, provding redundency using DNS fail-over. only 1 database is active at a time.
+
+    Read Replicas: used to scale performance by creating a Read Replica of the main DB,
+    can be deployed in the same AZ or even in a different region. Read Replicas can be promoted
+    to become standalone database but that will break the link between the main DB and the read replica.
+
+<!-- Amazon Aurora -->
+    Aurora is a relational database that is compatible with MySQL and PostgreSQL while being much faster and cost effective, developed by AWS. storage scales automatically.
+
+    Features:
+    - storage range 10GB to 128TB in 10GB increments.
+    - Compute resources can scale up to 96vCPUs and 768GB RAM.
+    - 2 copies of your data are contained in each AZ, with a min of 3 AZ's, 6 copies total.
+    - Aurora Snapshots can be shared with other AWS accounts.
+    - 3 Typess for replicas available: Aurora replicas (15 max concurrent), MySQL replicas and PostgreSQL replicas (5 Max for each).
+      Automated failover is only available with Aurora replicas.
+    - Aurora has automated backups enabled by default.
+    - Use Aurora Serverless for simple, cost-effective and scalable solution for intermittent or unpredictable workloads
+    - Aurora is designed to self handle loss of upto 2 copies of data without affecting write availability and 3 copies without affecting read availability.
+    - Aurora storage is self healing and Data blocks are scanned and repaired automatically.
+    - Aurora replicas are in the same region, while Aurora MySQL replicas can be Cross-Region.
+
+<!-- DynamoDB -->
+    NoSQL DB by AWS.
+
+    DynamoDB DAX: In-memory cache for DynamoDB for massive performance improvment, sits between the application and the database.
+    
+    Facts:
+    - Stored on SSD storage.
+    - Spread across 3 geographically distinct datacenters.
+    - Eventually consistent reads by default for better performance (upto ~1 second)
+    - Strongly consistent reads for better accuracy.
+    - Encryption at rest KMS.
+    - Site-to-site VPN.
+    - Direct Connect (DX).
+    - IAM policies and roles for fine-grained access.
+    - CloudWatch and CloudTrail.
+
+    DynamoDB Transactions (ACID)
+        Atomic: All changes are either performed successfuly or not at all.
+        Consistent: Data must be consistent before and after the transaction.
+        Isolated: no other process can change the data while the transaction is running.
+        Durable: Changes made by a transaction must persist. 
+        * Basically all or nothing
+
+        useful for building applications that require coordinated inserts, deletes or updates to multiple itmes as part of a single logical business operation.
+
+        Giveaways: Question mentions ACID.
+
+    DynamoDB Backups:
+        On-Demand Backup and Restore:
+        - Full backups at any time
+        - No impact on table performance or availability
+        - Consistent within seconds and retained until deleted
+        - Same region as source table
+        
+        Point-in-Time Recovery (PITR)
+        - Protects against accidental R/W
+        - Restore to any point in the last 35 days
+        - Incremental backups
+        - not enabled by default
+        - Newest possible backup is 5 min in the past
+
+    DynamoDB streams:
+        Time-ordered sequence (store) of item-level changes in a table, stored for 24 Hours, can be combined with lambda.
+
+    Global Tables:
+        By using the underlying DDB streams tech, Global Tables can sync tables globally for multi-region redundancy or DR, latency usually under 1sec.
+        Provides Multi-Master, Multi-Region Replication. good for globally distributed application.
+
+<!-- Amazon DocumentDB -->
+    Literally MongoDB on the cloud. usefull for moving MongoDB based application to AWS without refactoring.
+
+<!-- Cassandra and Amazon Keyspaces-->
+    Cassandra is distirbuted NoSQL database for big data solutions.
+    AWS Keyspaces is basically an AWS Managed Cassandra, serverless.
+
+<!-- Amazon Neptune -->
+    An AWS managed Graph Database
+
+    Graph databases are useful for:
+    - Building connections between identities
+    - Build Knowledge Graph Applications
+    - Detect Fraud Patterns
+    - Security Graphs to improve IT security.
+
+    * Usually a distractor, only relevant when talking about Graph Databases.
+
+<!-- Amazon QLDB -->
+    Quantom Ledger Database, A ledger database (think blockchain). 
+    * Usuaklly a distractor, only relvant in regards to immutable databases.
+
+<!-- Amazon Timestream -->
+    A serverless, fully managed database for time-series data. can be used to analyze trillions of events per day upto 1,000 faster and 90% cheaper than tradition databases.
+    * Giveaways: Question about storign large amount of time-series data for analysis
