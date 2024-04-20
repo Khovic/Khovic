@@ -565,3 +565,32 @@ Tables: In relational databases, tables are where the data is stored. Unlike Mon
     Latency Routing Policy: Route traffic based on the users latency to a specified region.
 
     Multivalue Routing Policy: Same as simple routing policy but only returns values of endpoints that successfully passed health checks.
+
+
+# Elastic Load Balancers
+<!-- Application Load Balancer -->
+    Offers intelligent load balancing and operates on layer 7 of the OSI model. Supports only HTTP/HTTPS - SSL termination is done on the LB.
+
+    Each ALB consists of:
+    - Listeners: checks for connection requests from clients using the protocol and port we configure
+    - Rules: determines how the LB will route the request to its registered target, each rule consists of a priorty, atleast one action and atleast one condition.
+<!-- Network Load Balancer -->
+    Offers high performance load balancing and operates on layer 4.
+    Supported protocols: TCP, TLS, UDP,TCP_UDP. 
+    Ports: 1-65535.
+    Can offload TLS encryption/decryption to NLB but requires exactly one SSL server certificate on the listener.
+    NLB consist of: Listeners and target groups (no rules).
+<!-- Gateway Load Balancer -->
+    Used in inline virtual appliances, operate at Layer 3.
+<!-- Classic Load Balancer -->
+    Legacy, offers HTTP/HTTPS (Layer 7) and strict Layer 4 load balancing.
+    Supports the X-Forwarded-For header to forward the client's IP address.
+    Error 504: Gateway timeout - application isn't responding.
+
+<!-- Sticky Sesstions -->
+    May cause problem when the user's session is tied to an EC2 instance that's no longer available. in that case just disable sticky sessions. 
+    This can happen with CLB, but since ALB points to target groups and not individual EC2 instances its less of a problem.
+
+<!-- Deregistration Delay / Connection Draining -->
+    Allows you keep existing connections open if the EC2 instance becomes unhealthy.
+    if Disabled existing connections will be terminated immediatly once EC2 instances become unhealthy.
