@@ -437,9 +437,87 @@ Tables: In relational databases, tables are where the data is stored. Unlike Mon
     * Usually a distractor, only relevant when talking about Graph Databases.
 
 <!-- Amazon QLDB -->
-    Quantom Ledger Database, A ledger database (think blockchain). 
-    * Usuaklly a distractor, only relvant in regards to immutable databases.
+    Quantum Ledger Database, A ledger database (think blockchain). 
+    * Usuaslly a distractor, only relvant in regards to immutable databases.
 
 <!-- Amazon Timestream -->
     A serverless, fully managed database for time-series data. can be used to analyze trillions of events per day upto 1,000 faster and 90% cheaper than tradition databases.
     * Giveaways: Question about storign large amount of time-series data for analysis
+
+# VPC 
+<!-- Overview -->
+    VPC is basically a logical data center in AWS.
+    Consists of internet gateways, virtual private gateways, route tables , NACLs, subnets and security groups.
+    1 Subnet is always in 1 AZ.
+
+<!-- NAT Gateways -->
+    Network Address Translation gateway can be used to allow instances in a private subnet to connect to the internet or AWS services while preventing the internet from initiating a connection with those instances.
+
+    Facts:
+        - Redundant inside the AZ
+        - Starts at 5Gbps and scales upto 45Gbps
+        - No need to patch
+        - Not associated with security groups
+        - Automatically assigned a public IP address
+
+    Instructions: Create a NAT Gateway in your public subnet, create a route from the NAT to the Internet, and make sure the private subnet has a route to the NAT gateway.
+
+<!-- Security Groups -->
+    The last line of defences,  sits within a subnet and act as a virtual firewall for an EC2 instance.
+    When debugging internet connectivty start with Routing Tables > ACL's > Security groups.
+
+    Stateful: SG's are stateful, if you send a request from your instance then the response traffic is allowed to flow in regardless of inbound security group rules.
+
+<!-- Network ACLs -->
+    The first line of defense, stateless if you sned a request then the response traffic is not allowed unless specified in the ACL - Remember to open Ephemeral ports.
+
+    Default Network ACLs: VPC's come with a default network ACL which allow all inbound and outbout traffic.
+    Custom Network ACLs: by default Custom NACLs deny all in\out traffic.
+    Subnet Associations: Each subnet in the VPC must be associated with a NACL, if not explicitly associated then it is automatically associated with the default NACL.
+    Blocking IP addresses: IP blocks can only be done by NACLs and not SGs.
+    A NACL can be associated with multiple subnets, however a subnet can only be associated with a single NACL at a time. 
+
+<!-- VPC Endpoints -->
+    Basically AWS internal NAT, allows to communicate with AWS services without leaving the AWS network or requireing public IP.
+    Allow communication between instances in the VPC and services without availability risks or bandwith constraints.
+
+    2 Types of VPC endpoints:
+        Gateway Endspoints: Support S3 and DynamoDB Similar to a NAT
+        Interface Endpoints: an ENI with a private IP address that serves as an entrypoint for traffic to a supported service. Supports alot of AWS services. 
+
+<!-- VPC Peering -->
+    Allows you to connect 1 VPC with a nother via a direct network route using private IP addresses
+
+    You can peer between regions.
+    No overlapping CIDR address ranges.
+    
+    * Transitive peering is not supported - VPC A cannot talk to VPC C through VPC B, even if VPC's A and C are both connected to VPC B.
+
+<!-- AWS PrivateLink -->
+    Allows you to peer VPCs to 1000s of customer VPCs.
+    Doesn't require VPC peering; no RTs, NAT gateways, IGWs etc.
+    Requires a Network Load Balancer on the service VPC and an ENI on the customer VPC.
+
+<!-- AWS VPN CloudHub -->
+    Allows you to connect multiple VPN connections together.
+    Low cost and easy to manage.
+    Basically Aggregates VPN connections.
+
+<!-- Direct Connect -->
+    Directly (Physically) connect your datacenter to AWS.
+    - Useful for high-throughput workloads.
+    - Helplful when a stable, secure, reliable connection is required.
+
+<!-- Transit Gateway -->
+    Allows Transitive peering between thousands of VPCs and on-premises datacenters.
+    - works on a hub-and-spoke model.
+    - Works on a regional basis but you can have it across multiple regions.
+    - Can be used across multiple AWS accounts using RAM (Resource Access Manager)
+    - Can use route tables to limit how VPCs talk to each other.
+    - Works with Direct Connect, VPN connections.
+    - Supports IP multicast (not supported by any other AWS service)
+    * Giveaway: Question asks about simplifying network topology.
+
+<!-- AWS Wavelength -->
+    Embeds AWS compute and storage services within 5G networks.
+    Using 5G to increase application speeds at edge locations using mobile networks.
