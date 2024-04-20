@@ -521,3 +521,47 @@ Tables: In relational databases, tables are where the data is stored. Unlike Mon
 <!-- AWS Wavelength -->
     Embeds AWS compute and storage services within 5G networks.
     Using 5G to increase application speeds at edge locations using mobile networks.
+
+
+# Route53
+<!-- Top-Level Domain name -->
+    Amazon.com
+    bbc.co.uk
+    Top level domain name is the last word - .com, .uk in our examples.
+    Second level domain name is the second level domain name (.co) - optional.
+
+<!-- Common DNS Record Types -->
+    SOA Record: Start of Authority, contains:
+    - Name of server that supplied the data for the zone.
+    - Administrator of the zone.
+    - Current version of data file.
+    - Default TTL on resource records (TTL on DNS cache).
+
+    A Record: used by a computer to translate domaine name to an IP address.
+
+    NS Record: Name Server record, where the DNS information is stored.
+
+    CNAME:Canonical name can be used to resolve one domain name to another, cannot be used for naked domain names (zone apex record) such as khovic.com, must be used with something like m.khovic.com
+
+    Alias Record: AWS only version of CNAME record and used to map resource record sets in our hosted zone to LBs CloudFront distros or S3 bucket websites, Can be used for a naked domain name. - preferable to CNAME almost always.
+
+<!-- Routing Policies -->
+    Health checks: 
+    - We can set health checks on individual record sets.
+    - If a record set fails a health check it will be removed from Route53 until it passes the health check.
+    - We can set SNS notifications to alert us about failed health checks.
+
+    Simple Routing Policy: you can only have one record with multiple IP addresses, if multiple values exist Route53 will retrun all values to the user in a random order (the user will be refeered to an IP address randomly).
+
+    Weighted Routing Policy: Allows you to send traffic to different target IP addresses based on weights. 
+
+    Failover Routing Policy: Allows you to have to sites, Active and Passive. 
+    Route53 will direct to the active site until it fails the healthchecks then it will redirect all traffic to the passive site.
+
+    Geolocation Record Policy: Allows you to route traffic based on the geolocation of the end user.
+
+    Geoproximity Routing Policy: lets Route53 to route traffic based on geographic location of users and your resources, Optionally you can all route more or less traffic to a given resource by specifiying a values known as bias. - to use it you must have Route53 traffic flow set up.
+
+    Latency Routing Policy: Route traffic based on the users latency to a specified region.
+
+    Multivalue Routing Policy: Same as simple routing policy but only returns values of endpoints that successfully passed health checks.
