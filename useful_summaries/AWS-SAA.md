@@ -594,3 +594,123 @@ Tables: In relational databases, tables are where the data is stored. Unlike Mon
 <!-- Deregistration Delay / Connection Draining -->
     Allows you keep existing connections open if the EC2 instance becomes unhealthy.
     if Disabled existing connections will be terminated immediatly once EC2 instances become unhealthy.
+
+
+# Monitoring
+<!-- CloudWatch -->
+    Metrics: Metrics are either Cefault or Custom, default are provided out of the box while custom require the Cloudwatch agent to be installed on the host.
+    - Default: CPU utilization, Network Throughput. 
+    - Custom: EC2 Memory Utilization, EBS Storage Capacity.
+
+    Alarms: we can configure that a metric reaching certain conditions/threshold (<,<=.=>,> than threshold) to trigger an alarm, we can also choose how to treat missing data.
+        Actions: We define actions to be performed once an alarm is triggered.
+        - Autoscaling Actions: scale up, scale in etc.
+        - EC2 Actions: Stop,Terminate,Reboot and Recover instance etc.
+        - Systems Manager Actions: Create OpsItem, Create Incident etc.
+        * There are no default alarms.
+    
+    Basic vs Detailed Monitoring:
+        - Basic is 5 min intervals.
+        - Detailed is 1 min intervals.
+    
+    * AWS can't see past the Hypervisor level for EC2 Instances by default.
+    * The More Managed a service is, The more checks you get out of the box.
+
+<!-- CloudWatch Logs -->
+    Terminology:
+        Log Event: The actual log, contains log data and timestamp.
+        Log Stream: A collection of Log Events from the same sources creates a Log Stream.
+        Log Group: A logical grouping of Log Streams.
+
+    Features:
+    - Filter Patterns.
+    - CloudWatch Logs Insights: Allows you to query all logs using a SQL-Like language.
+    - Alarms triggered by specific filter patterns.
+
+    Logs that require processing should go to CloudWatch Logs.
+    Logs that do not require processing, should go directly to S3.
+    CloudWatch Logs is the preferred logging solution except if there are real-time needs that might fit better Kinesis.
+
+<!-- AWS Prom,Grafana -->
+    Prometheus: AWS managed, Prometheus compatibile serverless service, HA and can be used with EKS or even self-managed K8s clusters.
+    AWS Grafana: Allows Container metrics/logs/traces visualisation, IoT edge device data streams and operational teams. 
+    Grafana Data Sources: Comes with built-in data sources including CloudWatch Logs, AWS Prom, and AWS X-Ray.
+
+
+# High Availability and Scaling
+<!-- The 3 W's of Scaling -->
+    What do we scale?
+    Where do we scale?
+    When do we scale?
+
+<!-- Launch Templates vs Launch Configurations -->
+    Templates:  
+        - Can leverage all EC2 autoscaling features.
+        - Supports versioning
+        - More granularity
+        - AWS Recommended approach
+    Configurations:
+        - Only for certain EC2 Auto Scaling features
+        - Immutable (no versioning)
+        - Limited Configuration options
+        - Older and not recommended.
+
+    Launch Tempaltes are made of:
+    - AMI
+    - EC2 Instance size
+    - SGs
+    - Networking information (optional)
+    - User data (optional)
+
+<!-- Lifecycle Hooks -->
+    We can configure lifecycle hooks which are actions to perform during the inital launch of an instance during the Pending: Wait (for exmaple: install monitoring software on the instance) before it moves to the "InService" state. and we can configure lifecycle hooks during the Terminating: Wait state (ex: save all logs to S3) 
+
+<!-- Scaling Types -->
+    - Step Scaling: Applies stepped adjustments depending on the size of the alarm breach.
+    - Simple Scaling: Relies on metrics for scaling needs, ex: add 1 instance if CPU util > 80%.
+    - Target tracking: use a scaling metric target value and have the ASG add/remove Instances to stay within the target range
+
+    - Reactive Scaling: Wait for the load and measure it to determine if scaling is needed.
+    - Scheduled Scaling: Scale up/down in a schedule
+    - Predictive Scaling: AWS using ML algorithms to scale, they are reevaluated every 24Hrs to forcast for next 48Hrs.
+
+<!-- Instances Warmup and Cooldown -->
+    Warmup: Stop instances from being placed behind ELB, failing HCs and being terminated prematurely.
+    Cooldown: Pauses Autosacling for a seet amount of time.
+    Both are used to avoid Thrashing, we want to scale up quickly and scale down slowly. 
+
+<!-- Additional tips -->
+    - Provisioning times: monitor your provisioning times and create custom AMI if needed to reduce the time it takes to provison an instance.
+    - Cloudwatch is the main tool for alerting auto-scaling.
+    - Auto Scaling is only only scales EC2 Instances.
+
+<!-- 4 Options to scale Relational Databases -->
+    - Vertical Scaling
+    - Scaling Storage - Can only be scaled up.
+    - Read Replicas.
+    - Aurora Serverless.
+
+<!-- Scaling Non Relational Databases -->
+    DynamoDB Capacity modes (Table Types):
+    - Provisioned: Good for predictable workloads, Need set upper and lower scaling bounds, most cost effective when used correctly.
+    - On-Demand: Good for sporadic workload, easy to use, pay per read/write, less cost effective.
+
+    Capacity Units for DDB:
+        Read (RCU): 1 4kb strongly consistent read per scond, or 2 4kb eventually consistent reads per second.
+        Write (WCU): 1 1kb write per second.
+
+    * You can switch DDB capacity mode 2 times per 24 hours per table.
+
+<!-- General Considerations -->
+    Even if not asked for, we'd rather choose solutions that offer High-Availability, cost effectivness and sometimes it might be better to switch databases.
+
+<!-- Disaster Recovery Strategies -->
+Terminology:
+    RPO: To what point in time you want your ENV recovered to. - Recovery Point Objective.
+    RTO: How long until the ENV is recovered. - Recovery Time Objective.
+    
+The 4 Recovery Strategies:
+    Backup and Restore: Cheapest but usually slowest.
+    Pilot Light: Partially ready second ENV to be fully initialized in case of failover, faster the B&R but has downtime.
+    Warm Standby: Fully initialized but scaled down ENV for failover, quciker than pilot but more expensive.
+    Active/Active Recovery: Identical ENV for fail-over, fastest and most expensive. 
