@@ -714,3 +714,122 @@ The 4 Recovery Strategies:
     Pilot Light: Partially ready second ENV to be fully initialized in case of failover, faster the B&R but has downtime.
     Warm Standby: Fully initialized but scaled down ENV for failover, quciker than pilot but more expensive.
     Active/Active Recovery: Identical ENV for fail-over, fastest and most expensive. 
+
+
+# Decoupling Workflows
+We would always prefer loosely coupled architecture, avoid direct instance-to-instane communication.
+
+<!-- SQS -->
+    Settings:
+    - Delivery Delay
+    - Message Size: upto 256KB of text in any format.
+    - Encryption: Messages are encrypted in transit and at rest (SSE).
+    - Message Retention: 1 minute to 14 days, by default 4 days.
+    - Long vs Short Polling: long is prefered.
+    - Queue Depth: more of a value that a setting,   can be a trigger for autoscaling.
+    - Visibility timeout: enables you to hide a message when processing it, if not processed within the timeout period the message will become visible again, and if successfuly processed within that period the message will be deleted.
+
+    Dead-Letter Queues:
+    an SQS Queue for messages that werent successfuly consumed.
+    - make sure  to setup alarms and alerts on DLQ queue depth.
+    - DLQs for FIFO SQS must also be FIFO.
+    - SQL DLQs can be created for SNS topics.
+
+    FIFO Queues:
+    - Allows you ensure messages are consumed in the order they arrived to the queue.
+    - Reduced performence and higher cost.
+    - Messages contain deduplication ID to ensure messages are consumed only once.
+    - There are ways to order a Standard Queue but its more difficult.
+    - Message Group ID ensures messages are processed in a strict order base on the group.
+        
+
+<!-- SNS -->
+Supported Subscribers:
+-   Kinesis Data Firehose, SQS, Lambda, email, HTTP(S), SMS and Platform application endpoint
+-   Message size 256kb of text in any format MAX.
+-   FIFO\Standard: to modes availabe however FIFO Topics only supports SQS FIFO queues as a subscriber.
+-   FIFO Topics support ordering and deduplication.
+-   Messages that failed delivery can be stored in an SQS DLQ.
+-   Encryption: in transit enabled by default, SSE can be enabled with KMS encryption.
+-   Large Message Payloads: the SNS Extended Library allows for sending of messages upto 2GB in size, the message data is stored in S3 and then SNS publishes a reference to the object.
+-   SNS Fanout: messages published to the SNS topic are replicated to multiple endpoint subscriptions, allows for decoupled parallel asynchronuos processing.
+-   Message Filtering: Filter policies use JSON to define which messages get sent to which subscribers.
+
+Giveaways: Scenerios involving alerting, Push-based message applications.
+
+<!-- API Gateway -->
+API Endpoint types:
+    - Regional
+    - Edge-optimizied (global)
+    - Private (a VPC endpoint)
+
+API Gateway features:
+    - Supports versioning.
+    - Can fron API Gateway with a Web Application Firewall (WAF)
+
+* When API Gateway is created via Console it also gives the necessary permissions for accessing the backend (for example Lambda). if API Gateway is created via IaaC then you need to take care of the permissions yourself.
+
+<!-- AWS Batch -->
+A managed service thats good for long-running (over 15 min) and event-driven workloads.
+
+Terminology:
+-   Jobs: Units of work submitted to AWS batch, e.g. shell script, executables and Docker images.
+-   Job Definitions: The blue print for the resources in the job.
+-   Job Queues
+-   Compute Environment: set of Managed or Unmanaged compute resources used to run the jobs. 
+
+Types of supported compute:
+-   Fargate: Recommeneded,  start times <30s, upto 16vCPUs, no GPUs, <120GiB ram.
+-   ECS EC2 Instances: More Complex, provides access to GPUs, Elastic Fiber Adapter, Custom AMIs, Linux Parameters and allow High levels of concurrency.
+
+Batch vs Lambda:
+-   Unlike Lambda, Batch can run for over 15min
+-   While Lambda is serverless, it has limited runtime options, batch can run Docker images > any runtime.
+-   Lambda has limited disk space.
+
+<!-- Amazon MQ -->
+A message queue service designed for easy migration of existing applications to AWS, supports Apache ActiveMQ and RabbitMQ engines.
+
+SNS With SQS or Amazon MQ:
+-   Both offer architectures with topics and queues. 
+-   Both allow one-to-one or one-to-many messaging.
+-   AMQ suitable for migrating existing applications with messaging systems.
+-   If desiging new applications, SNS and SQS likely the better option due to simplicity and scalibility.
+-   AMQ REQUIRES private networking such as VPC, DirectConnect or VPN.
+-   SNS and SQS are publically accessible by default.
+
+Broker Types HA Architecture:
+    For ActiveMQ: active/standby deployments, one instance will remain available at all times.
+    For RabbitMQ: Cluster deployments of 3 broker nodes across multiple AZs behind a NLB.
+
+Giveaways: Anything specific to JMS, or messaging protocols like AQMP, MQTT, OpenWIre and STOMP.
+
+<!-- AWS Step Functions -->
+Serverless orchestration service, integrated with many AWS services. Written in Amazon States Language.
+Each step in a workflow is considered a State.
+Main componentes: State Machines and Tasks
+State Machine:  A particulare workflow with different event-driven steps.
+Tasks: Specific states within a workflow (state machine) representing a single unit of work.
+
+Workflows:
+-   Standard: Exactly-once execution, can run upto a year, upto 2,000 executions per second, pay per state transition, useful for long-running workfolws that need to have an auditable history.
+-   Express: At-least-once execution, cat run upto 5min, pricing based on num of exececutions, durations and memmory consumed,useful for high-event-rate workloads.
+
+Different States:
+-   Pass: passes any input directly to its output.
+-   Task: single unit of work performed.
+-   Choice: Adds branching logic to state machines.
+-   Wait: Creates a time delay.
+-   Succeed: Stops executions successfully.
+-   Fail: Stop executions with failure
+-   Parallel: Run parallel branches of executions.
+-   Map: Runs a set of steps based on elements of an input array.
+
+
+<!-- Amazon AppFlow -->
+Service for bi-directional flow of data from AWS to 3rd party SAAS apps.
+Terminology:
+-   Flow: Transfer of data between sources and destinations. -upto 100GB per flow.
+-   Data Mapping: Determines how src data is stored in dst.
+-   Filters: enable controlling which data is transfered.
+-   Triggers: How the flow has started, types are Run on demand, Run on event, Run on schedule.
