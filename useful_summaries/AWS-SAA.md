@@ -833,3 +833,100 @@ Terminology:
 -   Data Mapping: Determines how src data is stored in dst.
 -   Filters: enable controlling which data is transfered.
 -   Triggers: How the flow has started, types are Run on demand, Run on event, Run on schedule.
+
+
+# Big Data
+<!-- Redshift -->
+A relational database based on PostgreSQL designed for large datasets upto 16 Petabyta, not suitable for OLTP.
+- Supports multi-AZ (2) deployment for HA (Not option to conver single-AZ to multi-AZ).
+- Column-based instead of row based, allows for efficient queries.
+- Supports Snapshots that will be stored in AWS managed S3 bucket.
+* Always Favor Large Batches for inserts.
+
+Redshift Spectrum: Efficiently query and retrieve data from S3 without having to load data into Redshift tables.
+Enhanced VPC Routing: All COPY and UNLOAD traffic between our cluster and data repositories is forced through our VPC, enables the usage of VPC features such as VPC Endpoints, VPC Flow Logs and more.
+
+<!-- ETL with EMR  -->
+ETL: Extract Transform Load.
+EMR (Elastic MapReduce) is an AWS-managed big data platform for processing vast amounts of data.
+Good for web indexing, ML training and large scale genomics.
+Can be used with open-source tools such as: Spark, Hive, HBase, Flink, Hudi and Presto.
+
+EMR Storage:
+-   HDFS: Hadoop Distributed File System, it is scalable and used for caching results during processing.
+-   EMRFS: EMR File system, Extends Hadoop to directly access data in S3.
+-   Local File System: Locally connected disk created with each EC2 Instance, volumes remain only for the lifecycle of the instance.
+
+Cluster Node Types:
+-   Primary: Control plane.
+-   Core: Runs Tasks and stores data in HDFS - Long Running.
+-   Task Node: Only runs tasks, no storage, OPTIONAL, Typically Spot instance.
+
+Purchasing options for Instances:
+- On-Demand: Most Reliabled and expensive.
+- Reserved: For 1 year minimum, Typically used for primary and core nodes.
+- Spot: Cheapest but unreliable, typically task nodes.
+* Clusters can be long-running  or transiet (temporary)
+
+Giveaways: mention of Apache Hadoop and Apache Spark.
+
+<!-- Kinesis -->
+Service for ingesting, proccessing and analyzing real-time streaming data.
+Data Streams vs Firehose:
+    Kinesis Data Streams:
+        Purpose: Real-time streaming for ingesting data.
+        Speed: Real-time
+        Difficulty: We're responsible for creating the consumer and scaling the stream
+
+    Kinesis Data Firehose:
+        Purpose: Data transfer tool to get inforomation to S3, Redshift, Elasticsearch or Splunk.
+        Speed: Near Real-time (within 60secs).
+        Difficulty: plug and play
+
+Kinesis Data Analytics / Amazon Managed Service for Apache Flink:
+    Can be used with Kinesis Data Streams / Firehose for proccessing data, real-time and serverless. 
+    Pay only for consumed resources.
+
+Giveaways: mention of real-time, can be used as a real-time message broker (unlike SQS).
+
+<!-- AWS Athena and Glue -->
+Both are serverless services.
+    Athena: Allows direct query and analyze data in S3 using SQL.
+    Glue: Allows running ETL workloads and structure data from S3, similar to EMR but serverless.
+
+We can combine AWS Glue Crawlers to structure our data and have Athena analyze and query the structured data.
+
+Giveaways: Athena - Serverless SQL.
+
+<!-- AWS QuickSight -->
+Service for business data visualizations (dashboards), ad-hoc data analytics, and obtaining data-based business inights.
+Integrates with RDS, Aurora, Athena, S3 and more.
+SPICE: Robust in-memory engine for advanced calculations.
+Colum-Level Security (CLS) for Enterprise tier (paid).
+Pricine is on a per-user per-session basis.
+Has its own users and groups for managing access to insights.
+* Groups are enterprise tier.
+Giveaways: Business Intellignce.
+
+<!-- AWS Data Pipeline -->
+Managed service ETL workflows that automates movement and transformation of data.
+use data-driven workflow to create dependencies between tasks and activities.
+Componenets:
+-   Pipeline Definiton: The business logic of our data management, made of activites.
+-   Managed Compute: Will create or use existing EC2 Instances to perform activities. 
+-   Task Runners: (EC2) poll for different tasks and perform them
+-   Data Nodes: The locations and types of data that will be input \ output.
+Storage integrations include DynamoDB, RDS, Redshift and S3.
+Compute integratiosn include EC2 and EMR.
+Can be integrated with SNS for Failure notifaction and event-driven workflows.
+Giveaways: managed ETL services, automatic retries for data-driven workflows.
+
+<!-- AWS MSK -->
+AWS Managed Streaming for Kafka is managed AWS service for runnign and building Apache Kafka streaming applications.
+It handles control-plane operation of Kafka clusters, allows automatic recovery.
+data is Encrypted at rest with KMS and uses TLS for in-transit.
+
+<!-- Amazon OpenSearch -->
+Basically managed AWS ElasticSearch, ties with IAM for Access Control, SSE, VPC SGs, multi-AZ cabpable with automated snapshots.
+Easily Scalable.
+Integrates with CW, CT, S3, Kinesis.
