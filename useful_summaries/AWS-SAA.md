@@ -930,3 +930,127 @@ data is Encrypted at rest with KMS and uses TLS for in-transit.
 Basically managed AWS ElasticSearch, ties with IAM for Access Control, SSE, VPC SGs, multi-AZ cabpable with automated snapshots.
 Easily Scalable.
 Integrates with CW, CT, S3, Kinesis.
+
+
+
+# Serverless
+<!-- AWS Lambda -->
+Features:
+-   Pricing: Free tier of 1 Million requests and 400,000 GBs of compute per month, after that pay as you go.
+-   Integrates with AWS svcs including S3, DDB, EventBridge, SQS\SNS and Kinesis.
+-   Built in monitoring with CloudWatch.
+-   Easy configuration and scalability, upto 10,240 MB memory and CPU scales with it.
+-   Execution times no longer than 15min, for anything longer use ECS, Batch or EC2.
+-   Runtime support include Python, Golang, Java, NodeJS and more.
+
+Configuration:
+-   Runtime: Pick from available runtimes or bring your own.
+-   Permissions: for the function to perfrom AWS API calls, you need to attach a role.
+-   Networking: Optionally define the VPC, Subnet and SGs for your function, otherwise it will be automatically deployed in an AWS managed VPC with internet access.
+-   Resources: Set the memory available to your function, CPU scales with memory, affects performance and cost.
+-   Trigger: define what will trigger the function.
+        Common Triggers:
+        -   API Gateway
+        -   S3
+        -   DDB
+        -   SNS
+        -   CloudWatch Events
+        -   Cognito
+        -   Kinesis
+        -   SQS
+        -   Step Functions
+
+Quotas and Limitations:
+    Compute and Storage:
+    -   1,000 Concurrent executions.
+    -   512MB-10GB disk storage (/tmp). - Integration with EFS if needed.
+    -   4KB for all env vars.
+    -   128MB-10GB memory allocation.
+    -   Execution time upto 900 secs.
+    
+    Deployment and configuration:
+    -   Compressed deployment .zip package <=50MB.
+    -   Uncompressed deployment <=250MB.
+    -   Request and Response payload <=6MB.
+    -   Streamed responses <=20MB.
+
+
+<!-- AWS Serverless Application Repository -->
+Repository for storing and sharing AWS Serverless applications.
+Templates: Define whole application via AWS SAM Templates, private by default.
+Allows publishing your own applications or Deploy publicly available ones.
+Can share apps only within organizations.
+High integration with Lambda.
+
+<!-- ECS -->
+    ECS vs EKS
+    -   ECS: Proprietary AWS container orchestration solution, best if you're all-in on AWS, simpler than kubernets.
+    -   EKS: Managed service of open-source K8s, fit for larger workloads, more difficult to configure.
+
+
+    ECS Launch Types:
+        EC2:
+        -   We're responsible for underlying OS.
+        -   EC2 Pricing.
+        -   Fit for long running containers.
+        -   Multiple containers can share the same host.
+        -   Capable of mounting EFS for persistent shared storage.
+        Fargate:
+        -   No OS access.
+        -   Pay as you go for resources and running time.
+        -   Fit for short running tasks.
+        -   Also capable of mounting EFS.
+        -   Simpler but can be more expensive.
+    
+    Fargate is for running container, and deployed via ECS or EKS.
+    ECS Task Roles are used to assign IAM permissions to contianers.
+        Task Execution roles are used by the container agent to make AWS API calls.
+    Fargate Always runs in awsvpc Network mode.
+<!-- ECS Anywhere -->
+a Feature of ECS for running ECS cluster on premises but have it managed by AWS ECS.
+Requires the installation of ECS Agent, SSM Agent and Docker on the nodes.
+Use the EXTERNAL launch type.
+
+<!-- AWS EventBridge (CloudWatch Events) -->
+Allows to trigger actions based on events within AWS, eg. Triggering a Lambda function when cretain AWS API calls are made.
+Can use the default bas or create custom bus for cross-accoutn access.
+
+<!-- Amazon ECR -->
+Supports Docker images, OCI images and OCI-compatible artifact.
+Can define Lifecycle policies for images.
+Allow image scanning on push for identifying software vulnerabilities.
+Can be configured prevent image tags from being overwritten.
+
+<!-- EKS Distro -->
+Open source version of EKS that we can deploy anywhere ourselves.
+<!-- EKS Anywhere -->
+Deployment of EKS on premises based on EKS-D, has curated packages that extend core funcionality of K8s ccluster but require a subscription.
+
+<!-- Aurora Serverles -->
+Concepts:
+-   Aurora Capacity Units (ACUs): Measurments of cluster scaling.
+-   Set a min and max of ACUs for scaling, can be zero.
+-   Allocated by AWS-Managed warm pools.
+-   Combination of ~2GiB mem and matching CPU and Networking.
+-   As Resilient as Aurora Provisioned.
+-   Supports Multi-AZ deployments.
+-   Easilty swap between Provisioned and Serverless Aurora.
+-   Pay as you go per second per used resources.
+* Aurora Serverless v1 DB can scale down to zero ACUs, V2 can only scale to their minimum specified ACU value.
+
+<!-- AWS X-Ray -->
+AWS Tracing solution.
+Concepts:
+-   Traces: contain segments and Trace ID.
+-   Tracing header: extra HTTP header containing sampling decisions and trace ID. - X-Amzn-Trace-Id
+-   Segments: Data containing resource names, request details and other info.
+-   Subsegments: provide more granular timing information and details.
+-   Service Graph: Graphical visualization of interacting services in requests.
+
+AWS X-Ray Daemon: listens on UDP:2000 and collects raw segment data which it then sends to AWS X-Ray API.
+Integrations: EC2, ECS, Lambda, SNS\SQS, API Gateway, Elastic Beanstalk.
+Giveaways: Application Insights, App request insights, viewing response times, HTTP response analysis.
+
+<!-- AWS AppSync -->
+A Service for scalable GraphQL interfaces.
+Giveaways: GraphQL, fetching app data, declaritve coding and front-end data fetching.
