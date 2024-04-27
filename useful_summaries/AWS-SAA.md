@@ -1054,3 +1054,118 @@ Giveaways: Application Insights, App request insights, viewing response times, H
 <!-- AWS AppSync -->
 A Service for scalable GraphQL interfaces.
 Giveaways: GraphQL, fetching app data, declaritve coding and front-end data fetching.
+
+
+# Security
+<!-- DDOS -->
+Common DDOS Attacks:
+    Layer 4: SYN floods, NTP Amplification attacks.
+    Layer 7: Floods of GET/POST
+
+<!-- AWS Shield -->
+Provides free protection against DDOS attacks and Layer 3/4 Attacks ONLY (NOT LAYER 7).
+Avanced: Costs 3,000K a month and provides 24/7 dedicated DDoS Response Team.
+
+<!-- AWS WAF -->
+Provides Layer 7 protection, can block layer 7 DDOS attacks and SQL injection aswell cross-site scripting.
+Also allows you to block access to specific countries and IP addresses.
+
+<!-- CloudTrail -->
+Logs API calls made to the AWS API.
+What is logged:
+-   Metadata around API Calls.
+-   Identity of API Caller.
+-   Time of API Call.
+-   Source IP of API Caller.
+-   Request parameters.
+-   Response elements returned by the service.
+Logs stored is S3.
+
+<!-- AWS GuardDuty -->
+Uses AI to learn what normal behavior looks in our account for 7-14 days and then alerts us of abnormal or malicius activity detected.
+-   Updates a database of known malicious domains.
+-   Monitors CloudTrail, VPC Flow Logs and DNS logs.
+-   Findings appear in GuardDuty dashboard, CloudWatch events can be used to trigger events to address a threat.
+
+<!-- AWS Firewall Manager -->
+Allows you to centrelize and secure multiple AWS accounts and resources.
+-   Good for ensuring complaince across accounts.
+
+<!-- AWS Macie -->
+An automated service that uses AI to analyze data in S3 and helps identify PII (Personal Identifable Information), PHI and financial data.
+Alerts you with Macie Alerts if sensetive data found insecurely in a bucket.
+-   Can be combined with other services such as Step Functions for remediation actions.
+-   Ideal for preventing Identity theft.
+
+<!-- AWS Inspector -->
+Used to perform vulnerability scans on both EC2 Instances and VPC.
+Provides a report that assesses the security of hosts and netowrk.
+-   Host assesment require the installation of an agent on the host.
+-   Network assesment does not require an agent.
+-   Can be ran once or weekly.
+
+<!-- KMS -->
+KMS allows automatic encryption keys rotation and generation, however the underlying hardware is multi-tenant.
+3 Ways to generate CMK:
+-   AWS creates it for you, It is generated within HSMs managed by AWS KMS. - Allows automatic key rotation.
+-   Import key material from our own key management infra.
+-   Have the material generated in an AWS CloudHSM cluster as part of the custom key store feature in AWS KMS.
+3 Ways to control permissions:
+-   Use the key policy, the full access of the CMK is defined in a single document.
+-   Use IAM policies in combination with the key policy.
+-   Use grants in combination with the key policy. 
+
+CloudHSM:
+A service that dedicates HSM hardware for us, full control of users, groups, keys etc. - no automatic key rotation.
+
+<!-- AWS Secrets Manager -->
+Allows secure storage of applicatin secrets such as DB credentials, API keys, SSH keys, passwords etc.
+-   Applications use the Secret Manager API.
+-   Enabling rotation is easy but make sure no hardoced credentials in the application, SM will rotate the credentials once when enabled.
+-   Not free.
+
+<!-- AWS Parameter Store -->
+Allows storage and management of configuration data and secrets data. 
+Limits:
+-   Maximum of 10,000 parameters stored.
+-   No key rotation.
+-   Can't generate passwords with CloudFormation.
+-   Is Free
+
+<!-- Sharing S3 Objects Temporary -->
+Two methods:
+-   Presigned URLS, a URL with an experation data for a single object.
+-   Presigned Cookies, the user will download a cookie that will grant him access to multiple S3 objects.
+
+<!-- AWS Certificate Manager -->
+Free service for creation and management of SSL Certificates.
+integrates with ELB, CloudFront and API Gateway.
+Has automatic rotation of certificates.
+
+<!-- AWS Audit Manager -->
+Service for automating audits in our AWS accont.
+Giveaways: continous auditing, PCI HIPAA or GDPR compliance.
+
+<!-- AWS Artifact -->
+Service for downloading audit reports, usualy a distractor.
+
+<!-- COGNITO -->
+User Pools: User directories that provide sign-up and sign-in functionality for our application users.
+Identity Pools: Allows users to access other AWS services.
+How it works:
+    1. User auths with User Pool and gets tokens.
+    2. Token are provided to Identity Pool in exchange for AWS credentials.
+    3. User access AWS services using the credentials.
+
+<!-- Amazon Detective -->
+Service for analyzing the root cause of an event. 
+-   Operates across multiple AWS services.
+-   Often a distractor.
+
+<!-- AWS Network Firewall -->
+A Physical AWS-managed firewal hardware.
+-   Allows filtering of network traffic before it reaches our internet gateway.
+-   Enables usage of intrusion prevention systems.
+
+<!-- AWS Security Hub -->
+Allow you to view all security alerts across multiple AWS security services and accounts.
