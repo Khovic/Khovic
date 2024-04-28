@@ -767,7 +767,7 @@ API Gateway features:
     - Supports versioning.
     - Can fron API Gateway with a Web Application Firewall (WAF)
 
-* When API Gateway is created via Console it also gives the necessary permissions for accessing the backend (for example Lambda). if API Gateway is created via IaaC then you need to take care of the permissions yourself.
+* When API Gateway is created via Console it also gives the necessary permissions for accessing the backend (for example Lambda). if API Gateway is created via IaC then you need to take care of the permissions yourself.
 
 <!-- AWS Batch -->
 A managed service thats good for long-running (over 15 min) and event-driven workloads.
@@ -1131,6 +1131,10 @@ Limits:
 -   No key rotation.
 -   Can't generate passwords with CloudFormation.
 -   Is Free
+Parameter typs:
+-   String
+-   StringList
+-   SecureString: stored and referenced in a secure manner, encrypted via AWS KMS.
 
 <!-- Sharing S3 Objects Temporary -->
 Two methods:
@@ -1169,3 +1173,79 @@ A Physical AWS-managed firewal hardware.
 
 <!-- AWS Security Hub -->
 Allow you to view all security alerts across multiple AWS security services and accounts.
+
+# Automation
+<!-- CloudFormation -->
+Template sections:
+    AWSTemplateFormatVersion - optional
+    Parameters - optional
+    Mappings - optional
+    Resources - REQUIRED
+    Outputs - Optional
+    Transform - Optional
+
+-   Stack failure options decide the behavior in case of stack deployment failure, rollback or keep successfuly provisioned resources.
+-   Stack Policy allow you to protect stack resources from being deleted or being updated.
+-   Rollback configuration enables automatic rollback based on alarm threshold.
+-   Notification options enables notification in an SNS topic based on changes in stack.
+
+<!-- Elastic Beanstalk -->
+Platform as a Service, takes care of provisioning resources and deploying the application, we just need to provide the code.
+Supported Languages: Java, PHP, Python, Rub, Go, .NET, NodeJS.
+Deploys using platfroms including Tomcat and Docker.
+It can fully manage the EC2 instacnes or we can take full administrative control.
+
+<!-- Systems Manager -->
+Uses the SSM Agent to centralize control and execution of taks in EC2 instances.
+-   Make sure to have the necessary IAM permissions on the compute.
+-   Can be installed on non AWS compute and edge devices.
+Capabilities: 
+   -    Automation: use predefined playbooks (Automation Documents).
+   -    Run Command: execute commands remotely without SSH or RDP.
+   -    Patch Manager: Automates patching managed instances (OS and Apps).
+   -    Parameter Store integration.
+   -    Maintainance Windows
+   -    Session Manager: Securely connect to managed compute without needing SSH access. - doesn't require opening ports. 
+   -    Logging allows logging of all usage during sessions to CW and CT.
+
+
+# Caching
+<!-- AWS Caching options: -->
+    -   CloudFront (external caching)
+    -   ElastiCach (internal caching)
+    -   DynamoDB DAX
+    -   Global Accelerator
+* Caching whenever possible is preferred.
+
+<!-- Cloudfront: -->
+    -   Defaults to HTTPS, custom SSL certificate is optional.
+    -   Can be used to front non AWS applications.
+    -   Global  Distribution, no specific countries just general areas globally.
+    -   Manual expiration of content from cache is possible, instead of waiting for TTL.
+
+    Settings:
+    -   HTTPS, redirect to HTTPS or Force HTTPS are possible.
+    -   Possible to restrict contect access via signed URLs or signed Cookies.
+* Cannot pick specifc eedge locations
+
+<!-- ElastiCache: -->
+    AWS managed version of Memcached and Redis.
+    Memcached:
+    -   Simple DB caching solution.
+    -   Not a DB.
+    -   No failover or Multi-AZ support.
+    -   No Backups.
+    Redis:
+    -   Supported as a Caching solution.
+    -   Functions as a standalone DB.
+    -   Failover and Multi-AZ support.
+    -   Supports Backups.
+
+<!-- Global Accelerator: -->
+IP Caching solution, where multiple servers are assigned the same IP and request are automatically routed to the nearst server.
+-   Operates on layer 3, primarily TCP/UDP traffic.
+-   Traffic is routed through AWS's internal network for high speeds.
+-   By default, we are provided 2 Anycast IP addresses.
+-   Dual-stack receives 4 static IP addresses (2 IPv4, 2 IPv6)
+-   Standard routing: traffic is routed based on user location, health check and weights.
+-   Custom routing: Traffic is routed to specified EC2 instances and ports in a VPC.
