@@ -1249,3 +1249,17 @@ IP Caching solution, where multiple servers are assigned the same IP and request
 -   Dual-stack receives 4 static IP addresses (2 IPv4, 2 IPv6)
 -   Standard routing: traffic is routed based on user location, health check and weights.
 -   Custom routing: Traffic is routed to specified EC2 instances and ports in a VPC.
+
+
+# Governance
+<!-- AWS Organizations -->
+For central management of multi-account AWS designs in a hierarchical manner.
+
+Features:
+-   Consolidated Billing: Batches all bills to a single payment method.
+-   Usage Discounts: Consolidated billing allows aggregate usage discounts.
+-   Shared Savings: Easily share Reserved Instances and Savings Plans across the org.
+
+Service Controlled Policies: An OU-wide IAM policy that applies to all member of that OU. 
+
+AWS RAM ()
