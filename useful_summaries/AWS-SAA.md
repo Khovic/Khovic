@@ -1254,12 +1254,280 @@ IP Caching solution, where multiple servers are assigned the same IP and request
 # Governance
 <!-- AWS Organizations -->
 For central management of multi-account AWS designs in a hierarchical manner.
-
 Features:
 -   Consolidated Billing: Batches all bills to a single payment method.
 -   Usage Discounts: Consolidated billing allows aggregate usage discounts.
 -   Shared Savings: Easily share Reserved Instances and Savings Plans across the org.
 
-Service Controlled Policies: An OU-wide IAM policy that applies to all member of that OU. 
+Service Control Policies: An OU-wide IAM permission guard rails policy that applies to all member of that OU. - doesn't affect management accounts.
 
-AWS RAM ()
+<!-- AWS RAM (Resource Access Manager) -->
+Allows cross-account sharing of resources. 
+List of Resources than can be shared:
+- TGW
+- VPC Subnets
+- License manager
+- Route 53 Resolver (Rules and Endpoints)
+- Dedicarted Hosts 
+- And many more.
+
+Ownership:
+    Owners create and manag the VPC resources that get shared.
+    They CANNOT modify resources deployed by participate accounts.
+Participant Accounts:
+    Able to provision resources into the shared VPC subnets.
+    CANNOT modify the shared resource.
+
+<!-- Cross-Account Role Access -->
+Always use roles to grant temp access to resources in our AWS account.
+Cross-account roles are preferred to IAM users.
+Role assumption credentials expire.
+
+Process:
+    1. Create IAM Role for sharing.
+    2. Create trust policy to allow sts:assumRole using their role's ARN.
+    3. Provide the ARN of our created role to recipient.
+
+<!-- AWS Config -->
+Inventory management and control tool.
+- Allows viewing of infra configuration history.
+- Offers ability to create rules to make sure resources conform to requirements.
+- Can receive alerts via SNS
+- Configured per Region!
+- Results can be aggregated across Regions and AWS Accounts.
+
+Automatic Remidiation:
+- Can be enabled via SSM Automation Documents.
+- Automation Documents can be AWS-managed or custom.
+- Custom Automation Documents can leverage Lambda.
+- Can enable a retry if fails.
+
+Integrates with SNS topics and EventBridge.
+* Monitoring and assesment tool, NOT preventative.
+
+<!-- AWS Directory Service -->
+Types:
+-   Managed Microsoft AD
+-   AD Connector: Creates a tunnel between AWS and on-prem AD.
+-   Simple AD: Standalone directory powerd by Linux Samba AD-compatible server.
+
+<!-- Cost Explorer -->
+Allows visualisation of your costs on AWS.
+Important to use Tags!
+Can forecast spending upto 12 months ahead.
+Offers Hourly and monthly granularity.
+Can break down costs per Linked Account.
+Goes hand-in-hand with AWS Budgets.
+
+<!-- AWS Budges -->
+Best way of letting users know they are close to overspending.
+Use Cost Explorer to create fine-grained budgets.
+Use Tags!
+
+Types of Budgets:
+-   Cost Budgets: Plan how much you want to spend on a service.
+-   Usage Budgets: Plan how much you want to use on one or many services.
+-   RI Utilization Budgets: Utilization threshold. See if your RIs are unused or under-utilized.
+-   RI Coverage Budgets: Coverage threshold, See how much of an instance usage is covered by a reservation.
+-   Savings Plans Utilization Budgets: Utilization threshold, See if your savings plans are under-utilized.
+-   Savings Plans Coverage Budgets: Coverage threshold. See how much of your instance usage is coverd by Savings Plans.
+
+<!-- AWS Cost and Usage Reports (CUR) -->
+Most Comprehensive set of cost and usage data for AWS spending.
+Allows Publishing billing reports to S3.
+Once enabled, updates atleast once a day.
+Use within Organizations at org level, OU level or member account level.
+Time granularity for aggregation of data: houry, daily or monthly.
+Built-in support for configuring reports to be queried with Athen, ingested into Redshift or visualized with QuickSight.
+* Giveaways: mention of detailed cost breakdowns, delivery of daily usage reports or tracking Savings Plans utilizations.
+
+<!-- AWS Compute Optimizer -->
+Optimizes: Analyzes configuration and utilization metrics of AWS resources.
+Reporting: Reports current usage optimizations and potential recommendations.
+Graphs: Provides Graphical history data and projected utilization metrics.
+
+Supported Resources: EC2, Auto Scaling Groups, EBS, Lambda.
+Supported Accounts: Standalone, Member, Management.
+
+* Disabled by default. has paid features for enhancement of recommendations.
+
+<!-- Savings Plans -->
+Long term commitment (1/3-year), pay all upfront (best savings), partial upfront or no upfront.
+    Compute Savings: most flexible, applies to EC2, Lambda and Fargate, Up to 66% savings.
+    EC2 Savings: Applies only to EC2 of specific family in specific regions, Up to 72% savings.
+    SageMaker Savings: Apply to any SageMaker instance, Any region and any component, up to 64% savings.
+
+<!-- AWS Trusted Advisor -->
+Using established best practices to check accounts.
+Works at an account level and makes recommendations based on entire account.
+Advises on Five Categories (Example Checks):
+-   Cost Optimizations (Under utilized resources)
+-   Performance (Overutilized\Underprovisioned resources based on metrics)
+-   Security (Outdated services in instances )
+-   Service Limits (Scaling group close to 100%)
+-   Fault Tolerance (Are snapshots enabled)
+-   Operation Excellence (Are VPC Flow logs enabled)
+Basic and Develop support comes with limited free checks.
+Eneterprise grants full access to All checks, Enables EventBridge automations.
+
+<!-- AWS Control Tower -->
+Quickest way to create and managed a secure, complaint AWS Multi-Account environment based on best practices.
+-   Automates account creation and security controls.
+-   Extends AWS organizations and leverages guardrails.
+
+Terminology:
+-   Landing zone: Well-architected, multi-account environment based on compliance and security best practices.
+-   Guardrails: High-level rules for the AWS environment.
+    1. Preventitive Guardrails utilize Service Control Polices.
+    2. Detective Guardrails leverages AWS Config rules to detect and alert violations.
+-   Account Factory: configurable pre-approved templates for new accounts.
+-   CloudFormation StackSet: Automated deployment of templates deploying repeated resource for governance.
+-   Shared Accounts: Three accounts used by Control Tower created during LZ creation.
+    The shared accounts are:
+    1. Management account
+    2. Log archive account
+    3. Audit account.
+
+* Giveaways: Automated multi-account governance, guardrails, account orchestration and governed user account provisioning.
+
+<!-- AWS License Manager -->
+Service for license management
+Giveaways: License Managemenet, Preventing license abuse.
+
+<!-- AWS Health -->
+Dashboard for tracking health, performance and availability of AWS Services.
+for example, it'll notify you if theres a maintainance scheduled on your EC2.
+-   Alerts you when there are events specific to your account, or globally relevant.
+-   Can automate actions using event bridge.
+Giveaways: Alerts for service health, Automating reboot of EC2 instances for AWS maintenance.
+
+<!-- AWS Service Catalogs -->
+A Catalog of pre-approved CloudFormation templates, allows end users to deploy pre-approved services into their own accounts.
+<!-- AWS Proton -->
+IaC provisioning and deployment of serverless/container architectures, meant to empower developers.
+
+<!-- AWS Well-Architected Tool -->
+A tool for measuring current workload against established AWS best practices.
+Aids in documentation of workload and architecture decisions.
+
+# Migration
+<!-- AWS Snow Family -->
+Snowcone: small device upto 8TB of data.
+Snowball edge: medium device Storage, Compute and GPU, 50-80TB of data.
+Snowmobile: a truck Upto 100PB of data.
+
+<!-- Storage Gateway -->
+Hybrid cloud storage service for merging on-prem with AWS.
+
+File Gateway: on prem NFS or SMB mount that copies/backs up/ caches files into AWS S3.
+Volumes Gateway: iSCSI Mount, Cached or stored mode, Create EBS Snapshots, Good for backup or migration.
+Tape Gateway: Replaces physical tapes by running as a virtual tape device.
+
+AWS DataSync: Agent based solution for one-time sync of on-prem NFS/SMB to AWS S3/EFS/FSx.
+              Agentless when trasferring data between AWS storage devices on the same AWS account.
+
+<!-- AWS Transfer -->
+Creates an sFTP and FTPS endpoints for loading data from outside into S3/EFS.
+Can also create an FTP endpoint inside the VPC only. 
+Good for supporting legacy applications.
+
+<!-- AWS Migration Hub -->
+Server Migration Service (SMS): Converts vCenter VMs into AMIs
+Database Migration Service (DMS): Converts Oracle/MySQL databases into Amazon Aurora DB/RDS using the Schema Conversion tool.
+
+<!-- AWS Application Discovery Service -->
+Migrate Applications to AWS
+Agentless: Migrate VMs based on Hypervisor-level data to AWS.
+Agent-Based: Gain additional data on VMs by installing an agent to help with migration.
+
+<!-- AWS Application Migration Service (MGN) -->
+Automated lift and shift of infrastructure to AWS.
+Replicates source servers (VMs, Physical, Cloud) into AWS for non-disruptive cutovers.
+RTO Measured in minutes, depending on OS boot time.
+RPO measured in sub-seconds.
+
+<!-- AWS DMS - additional -->
+Database Migration Service.
+Types of migration:
+    1. Full Load: All existing data is movbed from sources to targets in parallel.
+    2. Full Load and Change data Capture (CDC): Full load plus CDC captures changes to source tables during migration - the only option that guarantees transactional intgerity of target database.
+    3. CDC Only: replicate only data changes from source database.
+* One of the endpoints must be in AWS.
+
+
+# Front-End Web and Mobile
+<!-- AWS Amplify -->
+Suite of tools for front-end devs to quickly build full-stack apps on AWS
+Amplify hosting:
+    Supports common frameworks like React,Angular and Vue.
+    Allows seperation of staging and prod envs.
+    Support for server-side rendering apps like Next.js.
+Amplify Studio:
+    Easy auth implemenntation within apps.
+    Visual development environment to simplify creation of full-stack web/mobile apps.
+    Offers ready-to-use components.
+* Giveaways: Managed Server-Side Rendering in AWS, Easy mobile development, developers running full-stack applications.
+
+<!-- AWS Device Farm -->
+Testing of mobile applications on actual devices (phones and tablets) either automatically or manually.
+
+<!-- AWS Pinpoint -->
+Service for engaging customers with SMS/Emails push notifications etc..
+Features:
+    Projects: Collection of information, segments, campaigns and journeys.
+    Channels: The platform where we engage audiance segments.
+    Segments: Dynamic or imported; which users receive specific messages.
+    Campaigns: Initiatives engaging specifc audiance segments.
+    Journeys: Customized, multi-step engagements
+    Message Templates
+    Machine Learning: for prediction of user patterns.
+
+
+# AWS Machine Learning
+<!-- Analyzing Text -->
+Comprehend: used to understand meaning and sentiment in text, for example if feedback regarding you service is positive or negative.
+
+Kendra: An intelligent search service powered by ML, can search and index data located in different locations such as S3, File Servers and websites.
+
+Amazon Textract: automatically extract text, handwriting and data from scanned documents.
+
+<!-- Amazon Forecast -->
+Time-series forcasting service using ML.
+
+<!-- Amazon Fraud Detector -->
+Allows you to build fraud detection ML model based on your data.
+
+<!--Services Working with Text and Speech -->
+Transcribe: Convert audio and video files to text.
+Lex: Allows you to build conversational interfaces using natural language models.
+Polly: Turns text into lifelike speech.
+
+<!-- Rekognition -->
+Uses ML to automate recognition of pictures and videos, useful for content moderation.
+
+<!-- Amazon SageMaker -->
+Service for creating and training of ML models
+Components:
+    Notebook: Create models
+    Training: Train and tune models
+    Inference: Deploy models.
+Deployment Typs:
+    Offline: Asynchrous or batch.
+    Online: Synchronous or realtime.
+
+SageMaker Stages:
+1. Create a Model.
+2. Create an Endpoint configuration.
+3. Create an Endpoint.
+
+Elastic Inference: Speeds up throughput and decrease latency on SageMaker hosted services using CPU-based instances. more cost effective than full gpu instance.
+
+<!-- Amazon Translate -->
+ML Service to automate language translation.
+
+# Media
+<!-- Elastic Transcoder -->
+Service for transcoding Media.
+
+<!-- Kinesis Video Streams -->
+Allows video streaming at scale to AWS and perform real time video analytics, ML, Playback and other processing.
