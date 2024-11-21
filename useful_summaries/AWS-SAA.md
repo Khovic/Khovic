@@ -205,7 +205,7 @@ AWS datacenter deployed on-premise, Useful for Hybrid Cloud.
     SSD Volumes:
         - gp2/gp3: general purpose, suitable for boot disks and g eneral applications. upto 16,000 IOPS
         - io1/io2: suitable for OLTP and latency-sensitive applications upto 64,000 IOPS. 99.9/99.999% durability.
-
+        - io2 Block Express: Highest performance ssd.
     HDD Volumes:
         - st1: Throughput optimized HDD, suitable for big data, data warehouses and ETL, upto 500MB/s.
         - sc1: cold storage, for infrequently accessed data, lowest cost.
